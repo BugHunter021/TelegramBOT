@@ -4,6 +4,9 @@ $ch = curl_init();
 
 // Set the URL
 $ProgID= 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Program ID in intigriti.com . "https://api.intigriti.com/external/researcher/swagger/index.html#/Program/Program_GetProgramOverview"
+$token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';  // Token Bot .get from botfather from telegram
+$channel_id = '@xxxxxxxxxx';                         // Channel ID in telegram.Bot should admin this channel
+
 curl_setopt($ch, CURLOPT_URL, 'https://api.intigriti.com/external/researcher/v1/programs/'.$ProgID);
 
 // Set the request method to GET
@@ -36,10 +39,43 @@ echo $data['name'].' '.$status; // Output: Suspended
 
 // Output the response
 //echo $response;
-////////////////////////////////      Sent to Telegram Channel       /////////////////////////////////////////////
 
-$token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';  // Token Bot .get from botfather from telegram
-$channel_id = '@xxxxxxxxxx';                         // Channel ID in telegram.Bot should admin this channel
+//////////////////////////////// Change BIO Channel ////////////////////////////////////////
+date_default_timezone_set('Asia/Tehran');
+$current_time = date('Y-m-d H:i:s');
+//echo "Current time in Tehran: " . $current_time;
+
+$new_bio = 'Last check : '.$current_time;
+
+$url2 = "https://api.telegram.org/bot$token/setChatDescription";
+
+$data2 = [
+    'chat_id' => $channel_id,
+    'description' => $new_bio
+];
+
+$options2 = [
+    'http' => [
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST',
+        'content' => http_build_query($data2),
+    ],
+];
+
+$context2  = stream_context_create($options2);
+$result2 = file_get_contents($url2, false, $context2);
+
+if ($result2 === FALSE) { 
+    // Handle error
+}
+
+
+
+
+
+///////////////////////////////////Send Messageto Channel///////////////////////////////////
+
+
 $message = $data['name'].' Program Opened';
 
 $url = "https://api.telegram.org/bot$token/sendMessage";
