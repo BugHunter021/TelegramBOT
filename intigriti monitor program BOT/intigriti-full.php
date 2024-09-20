@@ -8,17 +8,20 @@ echo 'Active V 0.9<br>';
 $ch = curl_init();
 
 ////// Telegram Setting 
-$token = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-$channel_id = '@IntigiryMonitor';
+$token = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+$channel_id = '@IntigritiMonitor';
 
 ////// SQL Setting 
 $servername = "localhost";
-$username = "XXXXXXXXXXX";
-$password = "XXXXXXXXXXX";
-$dbname = "XXXXXXXXXXX";
+$username = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+$password = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+$dbname = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 ////// Intigriti API key
-$Auth_Bearer = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+$Auth_Bearer = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+
+///// Other variable
+date_default_timezone_set('Asia/Tehran');
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -59,59 +62,130 @@ foreach ($data['records'] as $record) {
             echo $value_prog. " -----> "; 
             $to_status = $record['activity']['toStatus']['value'];
             echo $to_status . "----->"; 
-        //echo $record['createdAt']. "<br>";
-            $time_change = date("Y-m-d H:i:s", $record['createdAt']);
-            echo $time_change. "<br>"; 
-        
-        // Check Exist 
-        $stmt = $conn->prepare("SELECT * FROM intigriti WHERE program_ID = ? AND time = ?");
-        $stmt->bind_param("ss", $programId, $time_change);
-        
-        // Execute the statement
-        $stmt->execute();
-        
-        // Get the result
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            echo "Exist";
-        } else {
-            echo "Not";
-            echo "*********".GetNameprg($programId). "*********". "<br>";
+            //echo $record['createdAt']. "<br>";
+                $time_change = date("Y-m-d H:i:s", $record['createdAt']);
+                echo $time_change. "<br>"; 
             
-            // SQL query to insert data
-            $sql = "INSERT INTO intigriti (program_ID, title, status, time) VALUES ('$programId', '$value_prog','$to_status', '$time_change')";
+            // Check Exist 
+            $stmt = $conn->prepare("SELECT * FROM intigriti WHERE program_ID = ? AND time = ?");
+            $stmt->bind_param("ss", $programId, $time_change);
             
-            if ($conn->query($sql) === TRUE) {
-                echo "New record created successfully". "<br>";
-                if ($to_status == 'Open' )
-                {
-                    $StatusEmoji='✅';
-                }
-                else
-                {
-                    $StatusEmoji='⛔️';
-                }
-                $MessageToTelegram = '🎯*Program Name: *'.GetNameprg($programId).chr(10).
-                '⚠️*Type Change: *'.$value_prog.chr(10).
-                $StatusEmoji.'*Status: *'.$to_status.chr(10).
-                '⏰*Change Time: * '.$time_change;
-                //$MessageToTelegram = urlencode($MessageToTelegram);
-                echo "*********".SentTelegram($MessageToTelegram);
-
+            // Execute the statement
+            $stmt->execute();
+            
+            // Get the result
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                echo "Exist";
             } else {
-                echo "Error: " . $sql . "<br>" . $conn->error. "<br>";
+                echo "Not";
+                echo "*********".GetNameprg($programId). "*********". "<br>";
+                
+                // SQL query to insert data
+                $sql = "INSERT INTO intigriti (program_ID, title, status, time) VALUES ('$programId', '$value_prog','$to_status', '$time_change')";
+                
+                if ($conn->query($sql) === TRUE) {
+                    echo "New record created successfully". "<br>";
+                    if ($to_status == 'Open' )
+                    {
+                        $StatusEmoji='✅';
+                    }
+                    else
+                    {
+                        $StatusEmoji='⛔️';
+                    }
+                    $MessageToTelegram = '🎯*Program Name: *'.GetNameprg($programId).chr(10).
+                    '⚠️*Type Change: *'.$value_prog.chr(10).
+                    $StatusEmoji.'*Status: *'.$to_status.chr(10).
+                    '⏰*Change Time: * '.$time_change;
+                    //$MessageToTelegram = urlencode($MessageToTelegram);
+                    echo "*********".SentTelegram($MessageToTelegram);
+
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error. "<br>";
+                }
             }
-        }
           break;
 
         case "New domains version added":
             echo $value_prog. " -----> "; 
-            echo "Time change : ".date("Y-m-d H:i:s", $record['createdAt']). "<br>"; 
+            //echo $record['createdAt']. "<br>";
+                $time_change = date("Y-m-d H:i:s", $record['createdAt']);
+                echo $time_change. "<br>"; 
+            
+            // Check Exist 
+            $stmt = $conn->prepare("SELECT * FROM intigriti WHERE program_ID = ? AND time = ?");
+            $stmt->bind_param("ss", $programId, $time_change);
+            
+            // Execute the statement
+            $stmt->execute();
+            
+            // Get the result
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                echo "Exist";
+            } else {
+                echo "Not";
+                echo "*********".GetNameprg($programId). "*********". "<br>";
+                
+                // SQL query to insert data
+                $sql = "INSERT INTO intigriti (program_ID, title, status, time) VALUES ('$programId', '$value_prog','$to_status', '$time_change')";
+                
+                if ($conn->query($sql) === TRUE) {
+                    echo "New record created successfully". "<br>";
+                    $MessageToTelegram = '🎯*Program Name: *'.GetNameprg($programId).chr(10).
+                    '⚠️*Type Change: *'.$value_prog.chr(10).
+                    '⏰*Change Time: * '.$time_change;
+                    //$MessageToTelegram = urlencode($MessageToTelegram);
+                    echo "*********".SentTelegram($MessageToTelegram);
+
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error. "<br>";
+                }
+            }
         break;
 
         default:
-            echo "<br>";
+            echo $value_prog. " -----> "; 
+            //echo $record['createdAt']. "<br>";
+                $time_change = date("Y-m-d H:i:s", $record['createdAt']);
+                echo $time_change. "<br>"; 
+            
+            // Check Exist 
+            $stmt = $conn->prepare("SELECT * FROM intigriti WHERE program_ID = ? AND time = ?");
+            $stmt->bind_param("ss", $programId, $time_change);
+            
+            // Execute the statement
+            $stmt->execute();
+            
+            // Get the result
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                echo "Exist";
+            } else {
+                echo "Not";
+                echo "*********".GetNameprg($programId). "*********". "<br>";
+                
+                // SQL query to insert data
+                $sql = "INSERT INTO intigriti (program_ID, title, status, time) VALUES ('$programId', '$value_prog','$to_status', '$time_change')";
+                
+                if ($conn->query($sql) === TRUE) {
+                    echo "New record created successfully". "<br>";
+                    $MessageToTelegram = '🎯*Program Name: *'.GetNameprg($programId).chr(10).
+                    '⚠️*Type Change: *'.$value_prog.chr(10).
+                    '⏰*Change Time: * '.$time_change;
+                    //$MessageToTelegram = urlencode($MessageToTelegram);
+                    echo "*********".SentTelegram($MessageToTelegram);
+
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error. "<br>";
+                }
+            }
+        break;
+
         }
 
    
@@ -155,6 +229,7 @@ function SentTelegram($message) {
     
     global $token ;
     global $channel_id ;
+    $message = $message.chr(10).chr(10).'@IntigritiMonitor';
     
         $url = "https://api.telegram.org/bot$token/sendMessage";
 
@@ -189,9 +264,11 @@ function UpdateBioChanell() {
     //////////////////////////////// Change BIO Channel ////////////////////////////////////////
     date_default_timezone_set('Asia/Tehran');
     $current_time = date('Y-m-d H:i:s');
-    //echo "Current time in Tehran: " . $current_time;
     
-    $new_bio = 'Last Check (TimeZone:Iran) : '.$current_time;
+    $new_bio = 'Monitor all program update on Intigriti.com'.chr(10).
+    'for Hunters'.chr(10).
+    '.:. Happy Hunting .:.'.chr(10).
+    'Last Check (TimeZone:Iran) : '.$current_time;
     
     $url2 = "https://api.telegram.org/bot$token/setChatDescription";
     
