@@ -1,33 +1,33 @@
 <?php
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+error_reporting(1);
 
 
 
-echo 'Active<br>';
+echo 'Active V 0.9<br>';
 $ch = curl_init();
 
 ////// Telegram Setting 
-$token = 'xxxxxxxxxxxxxxxxxxx';
+$token = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
 $channel_id = '@IntigiryMonitor';
 
 ////// SQL Setting 
 $servername = "localhost";
-$username = "xxxxxxxxx";
-$password = "xxxxxxxxx";
-$dbname = "monitor";
+$username = "XXXXXXXXXXX";
+$password = "XXXXXXXXXXX";
+$dbname = "XXXXXXXXXXX";
+
+////// Intigriti API key
+$Auth_Bearer = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
-
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-echo "Connection is OK !!"."<br>";
+//////////////////// Get all updates message from intigriti with API
 curl_setopt($ch, CURLOPT_URL, 'https://api.intigriti.com/external/researcher/v1/programs/activities');
 
 // Set the request method to GET
@@ -36,7 +36,7 @@ curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 // Set the headers
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'accept: application/json',
-    'Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    'Authorization: Bearer '.$Auth_Bearer
 ]);
 
 // Return the response instead of outputting it
@@ -107,8 +107,6 @@ foreach ($data['records'] as $record) {
 
         case "New domains version added":
             echo $value_prog. " -----> "; 
-            //echo $record['activity']['toStatus']['value'] . "----->"; 
-            //echo $record['createdAt']. "<br>";
             echo "Time change : ".date("Y-m-d H:i:s", $record['createdAt']). "<br>"; 
         break;
 
@@ -121,11 +119,10 @@ foreach ($data['records'] as $record) {
 
 function GetNameprg($prog_id) {
     $ch = curl_init();
+    global $token ;
+    global $channel_id ;
+    global $Auth_Bearer ;
 
-    // Set the URL
-    //$ProgID= '768ad323-335b-4710-9370-6b81925c122f';
-    $token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-    $channel_id = '@IntigiryMonitor';
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.intigriti.com/external/researcher/v1/programs/'.$prog_id);
 
@@ -135,7 +132,7 @@ function GetNameprg($prog_id) {
     // Set the headers
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'accept: application/json',
-        'Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        'Authorization: Bearer '.$Auth_Bearer
     ]);
 
     // Return the response instead of outputting it
@@ -152,74 +149,42 @@ function GetNameprg($prog_id) {
 return $data['name'];
 }
 
-///////////////////////////////////Send Messageto Channel///////////////////////////////////
+///////////////////////////////////Send Message to Telegram Channel///////////////////////////////////
 
 function SentTelegram($message) {
     
-$token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-$channel_id = '@IntigiryMonitor';
+    global $token ;
+    global $channel_id ;
+    
+        $url = "https://api.telegram.org/bot$token/sendMessage";
 
-//////////////////////////////// Change BIO Channel ////////////////////////////////////////
-date_default_timezone_set('Asia/Tehran');
-$current_time = date('Y-m-d H:i:s');
-//echo "Current time in Tehran: " . $current_time;
+        $data = [
+            'chat_id' => $channel_id,
+            'text' => $message,
+            'parse_mode' => 'Markdown',
+        ];
 
-$new_bio = 'Last check0 : '.$current_time;
+        $options = [
+            'http' => [
+                'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method'  => 'POST',
+                'content' => http_build_query($data),
+            ],
+        ];
 
-$url2 = "https://api.telegram.org/bot$token/setChatDescription";
-
-$data2 = [
-    'chat_id' => $channel_id,
-    'description' => $new_bio
-];
-
-$options2 = [
-    'http' => [
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-        'method'  => 'POST',
-        'content' => http_build_query($data2),
-    ],
-];
-
-$context2  = stream_context_create($options2);
-$result2 = file_get_contents($url2, false, $context2);
-
-if ($result2 === FALSE) { 
-    echo 'Update BIO Channel error';
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-    //$message = $msgtochan;
-
-    $url = "https://api.telegram.org/bot$token/sendMessage";
-
-    $data = [
-        'chat_id' => $channel_id,
-        'text' => $message,
-        'parse_mode' => 'Markdown',
-    ];
-
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data),
-        ],
-    ];
-
-    $context  = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
 
 
-    return $result;
+        return $result;
 }
 
 
 
 function UpdateBioChanell() {
     
-    $token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-    $channel_id = '@IntigiryMonitor';
+    global $token ;
+    global $channel_id ;
     
     //////////////////////////////// Change BIO Channel ////////////////////////////////////////
     date_default_timezone_set('Asia/Tehran');
@@ -251,11 +216,6 @@ function UpdateBioChanell() {
     }
     return $result;
 }
-
-
-
-
-
 
 
 
