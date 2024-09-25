@@ -300,7 +300,6 @@ function UpdateBioChanell() {
 
 
 
-
 $foo = UpdateBioChanell();
 
 $stmt->close();
